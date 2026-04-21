@@ -1,0 +1,39 @@
+<aside class="sidebar">
+    <div class="sidebar__logo">
+      <div class="logo-shield">🛡</div>
+      <div>
+        <div class="logo-name">PySpector</div>
+        <div class="logo-ver">{{ scan.currentScan().engineVersion }} · SAST</div>
+      </div>
+    </div>
+  
+    <button class="btn btn--primary sidebar__scan-btn">▶ &nbsp;Nuova Scansione</button>
+  
+    <nav class="sidebar__nav">
+      @for (group of navGroups; track group.label) {
+        <div class="nav-grp-label">{{ group.label }}</div>
+        @for (item of group.items; track item.id) {
+          <div class="nav-item" [class.nav-item--active]="active === item.id" (click)="navigate(item.id)">
+            <span class="nav-item__icon">{{ item.icon }}</span>
+            <span class="nav-item__label">{{ item.label }}</span>
+            @if (badgeVal(item); as bv) {
+              <span class="nav-badge nav-badge--{{ item.badgeType ?? 'info' }}">{{ bv }}</span>
+            }
+          </div>
+        }
+      }
+    </nav>
+  
+    <div class="sidebar__footer">
+      <div class="scan-info">
+        <span><span class="dot"></span>Ultimo scan</span>
+        <span class="mono" style="font-size:10px;color:var(--g3)">
+          {{ scan.currentScan().timestamp | date:'dd/MM HH:mm' }}
+        </span>
+      </div>
+      <div class="scan-info" style="margin-top:4px">
+        <span class="muted">Target</span>
+        <span class="mono accent-text" style="font-size:10px">{{ scan.currentScan().target }}</span>
+      </div>
+    </div>
+  </aside>

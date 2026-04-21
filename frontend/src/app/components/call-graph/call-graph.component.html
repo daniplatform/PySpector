@@ -1,0 +1,141 @@
+<div class="cg">
+
+    <!-- Toolbar -->
+    <div class="cg-bar">
+      <span class="mono muted" style="font-size:11px">
+        ⬡ {{ visNodes.length }} nodi · {{ visEdges.length }} archi
+      </span>
+      <div class="cg-bar__right">
+        @for (s of sevs; track s) {
+          <button class="fpill" [class.fpill--on]="filterSev===s" (click)="filterSev=s">{{ s }}</button>
+        }
+        <div class="sep"></div>
+        <button class="btn btn--sm" [class.btn--primary]="showTaintOnly" (click)="showTaintOnly=!showTaintOnly">
+          ≋ Taint only
+        </button>
+        <button class="btn btn--sm" (click)="resetLayout()">⟳ Reset</button>
+      </div>
+    </div>
+  
+    <!-- Graph + panel -->
+    <div class="cg-body">
+      <div class="cg-svg-wrap">
+        <svg #svgRef class="cg-svg" [attr.viewBox]="'0 0 '+W+' '+H" (click)="deselect()">
+          <defs>
+            <marker id="am-n" viewBox="0 0 10 10" refX="18" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="#2e3d4a" stroke-width="1.5" stroke-linecap="round"/>
+            </marker>
+            <marker id="am-t" viewBox="0 0 10 10" refX="18" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="#f97316" stroke-width="1.5" stroke-linecap="round"/>
+            </marker>
+          </defs>
+  
+          <!-- Edges -->
+          @for (e of visEdges; track e.id) {
+            @if (byId(e.source) && byId(e.target)) {
+              <line
+                [attr.x1]="byId(e.source)!.x" [attr.y1]="byId(e.source)!.y"
+                [attr.x2]="byId(e.target)!.x" [attr.y2]="byId(e.target)!.y"
+                [attr.stroke]="edgeColor(e)"
+                [attr.stroke-opacity]="e.isTainted ? 0.8 : 0.3"
+                [attr.stroke-width]="e.isTainted?2:1"
+                [attr.stroke-dasharray]="e.isTainted?'':'4 3'"
+                [attr.marker-end]="e.isTainted?'url(#am-t)':'url(#am-n)'"
+              />
+              @if (e.label) {
+                <text [attr.x]="(byId(e.source)!.x+byId(e.target)!.x)/2"
+                      [attr.y]="(byId(e.source)!.y+byId(e.target)!.y)/2-6"
+                      text-anchor="middle" fill="var(--high3)"
+                      font-family="JetBrains Mono,monospace" font-size="9">{{ e.label }}</text>
+              }
+            }
+          }
+  
+          <!-- Nodes -->
+          @for (n of visNodes; track n.id) {
+            <g class="cg-node"
+               [attr.transform]="'translate('+n.x+','+n.y+')'"
+               (mousedown)="startDrag($event, n, svgRef)"
+               (click)="$event.stopPropagation(); pick(n)">
+              @if (n.isEntryPoint) {
+                <circle [attr.r]="nodeR(n)+6" fill="none" [attr.stroke]="nodeStroke(n)"
+                        stroke-width="1" stroke-opacity=".3"/>
+              }
+              @if (selected?.id===n.id) {
+                <circle [attr.r]="nodeR(n)+8" fill="none" stroke="var(--white)" stroke-width="1.5" stroke-opacity=".4"/>
+              }
+              <circle [attr.r]="nodeR(n)" [attr.fill]="nodeColor(n)"
+                      [attr.stroke]="nodeStroke(n)" stroke-width="1.5"/>
+              <text text-anchor="middle" dominant-baseline="central"
+                    font-size="11" fill="rgba(255,255,255,.75)">
+                {{ n.type==='source'?'↓':n.type==='sink'?'✕':n.type==='tainted'?'⚡':'ƒ' }}
+              </text>
+              <text [attr.y]="nodeR(n)+13" text-anchor="middle"
+                    font-family="JetBrains Mono,monospace" font-size="10" fill="var(--g5)">
+                {{ n.label }}
+              </text>
+            </g>
+          }
+        </svg>
+  
+        <!-- Legend -->
+        <div class="cg-legend">
+          <div class="leg">
+            <span class="leg-node" style="background:#7b0000;border-color:#ef4444"></span>Source
+          </div>
+          <div class="leg">
+            <span class="leg-node" style="background:#9a3412;border-color:#f97316"></span>Tainted
+          </div>
+          <div class="leg">
+            <span class="leg-node" style="background:#b71c1c;border-color:#dc2626"></span>Sink
+          </div>
+          <div class="leg">
+            <span class="leg-node" style="background:#1c2c3a;border-color:#334155"></span>Function
+          </div>
+          <div style="width:100%;height:1px;background:var(--g1);margin:3px 0"></div>
+          <div class="leg"><span class="leg-line" style="background:var(--high3)"></span>Taint flow</div>
+          <div class="leg"><span class="leg-line leg-line--dash"></span>Call</div>
+        </div>
+      </div>
+  
+      <!-- Detail panel -->
+      @if (selected) {
+        <div class="cg-panel">
+          <div class="cg-panel__head">
+            <span class="mono accent-text">{{ selected.label }}</span>
+            <button class="btn btn--sm" (click)="selected=null">✕</button>
+          </div>
+          <div class="cg-panel__body">
+            <div class="drow">
+              <span class="muted">Tipo</span>
+              <span class="pill {{ selected.type==='sink'?'critical':selected.type==='source'?'high':'info' }}">
+                {{ selected.type }}
+              </span>
+            </div>
+            @if (selected.severity) {
+              <div class="drow">
+                <span class="muted">Severity</span>
+                <span class="pill {{ sevClass(selected.severity) }}">{{ selected.severity }}</span>
+              </div>
+            }
+            <div class="drow"><span class="muted">File</span>
+              <span class="mono accent-text" style="font-size:10px">{{ selected.file }}</span>
+            </div>
+            <div class="drow"><span class="muted">Line</span><span class="mono">{{ selected.line }}</span></div>
+            <div class="drow"><span class="muted">Module</span><span class="mono">{{ selected.module }}</span></div>
+            <div class="drow"><span class="muted">Chiamate</span><span class="mono">{{ selected.callCount }}×</span></div>
+  
+            @if (relatedFindings.length) {
+              <div class="dsect">Findings correlati</div>
+              @for (f of relatedFindings; track f.id) {
+                <div class="dfinding">
+                  <span class="pill {{ sevClass(f.severity) }}" style="font-size:9px">{{ f.severity }}</span>
+                  <span class="mono muted" style="font-size:10px;flex:1">{{ f.title }}</span>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>

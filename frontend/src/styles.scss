@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Backgrounds — Black → Grey */
+  --bg0: #080b0d;  --bg1: #0e1317;  --bg2: #151b21;
+  --bg3: #1c242c;  --bg4: #232d37;  --bg5: #2a3540;
+
+  /* Grey scale */
+  --g1: #2e3d4a;  --g2: #3d5166;  --g3: #6b7f90;
+  --g4: #8fa4b5;  --g5: #b8c9d5;  --white: #e8f0f5;
+
+  /* DarkRed → Orange (accents, borders, titles) */
+  --crit2:  #dc2626;  --crit3:  #ef4444;
+  --high2:  #ea580c;  --high3:  #f97316;
+  --med2:   #d97706;  --med3:   #f59e0b;
+  --low3:   #22c55e;
+  --info2:  #0ea5e9;
+
+  --critb: rgba(220,38,38,.10);
+  --highb: rgba(234,88,12,.10);
+  --medb:  rgba(217,119,6,.08);
+  --lowb:  rgba(22,197,94,.08);
+  --infob: rgba(14,165,233,.08);
+
+  --grad:   linear-gradient(135deg, #b71c1c, #f97316);
+  --grad-h: linear-gradient(90deg,  #b71c1c, #f97316);
+
+  --font-sans: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --sidebar-w: 220px;
+  --header-h:  56px;
+  --radius:    8px;
+  --radius-lg: 12px;
+  --radius-sm: 5px;
+}
+
+html, body {
+  height: 100%; overflow: hidden;
+  background: var(--bg0); color: var(--white);
+  font-family: var(--font-sans); font-size: 14px;
+  line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg1); }
+::-webkit-scrollbar-thumb { background: var(--g1); border-radius: 2px; }
+
+/* Severity pills — usate ovunque */
+.pill {
+  display: inline-flex; align-items: center;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  padding: 2px 8px; border-radius: var(--radius-sm);
+  white-space: nowrap; letter-spacing: .5px;
+}
+.pill.critical { background: var(--critb); color: var(--crit3); border: 1px solid rgba(239,68,68,.25); }
+.pill.high     { background: var(--highb); color: var(--high3); border: 1px solid rgba(249,115,22,.25); }
+.pill.medium   { background: var(--medb);  color: var(--med3);  border: 1px solid rgba(245,158,11,.2);  }
+.pill.low      { background: var(--lowb);  color: var(--low3);  border: 1px solid rgba(34,197,94,.2);   }
+.pill.info     { background: var(--infob); color: var(--info2); border: 1px solid rgba(14,165,233,.2);  }
+
+/* Card condivisa */
+.ps-card { background: var(--bg2); border: 1px solid var(--g1); border-radius: var(--radius-lg); overflow: hidden; }
+.ps-card__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px; border-bottom: 1px solid var(--g1);
+  font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--white);
+  .accent { color: var(--high3); }
+}
+.ps-card__body { padding: 16px 18px; }
+
+/* Bottoni */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+  padding: 6px 14px; border-radius: var(--radius);
+  border: 1px solid var(--g1); background: var(--bg3); color: var(--g4);
+  cursor: pointer; transition: border-color .15s, color .15s; letter-spacing: .3px;
+  &:hover { border-color: var(--high3); color: var(--high3); }
+  &.btn--primary { background: var(--grad); border: none; color: #fff; &:hover { opacity:.88; } }
+  &.btn--sm { padding: 4px 10px; font-size: 11px; }
+}
+
+.mono   { font-family: var(--font-mono); }
+.muted  { color: var(--g3); }
+.accent-text { color: var(--high3); }

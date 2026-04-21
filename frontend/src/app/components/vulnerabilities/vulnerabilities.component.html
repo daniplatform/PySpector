@@ -1,0 +1,77 @@
+<div class="vp">
+    <div class="vp-bar">
+      <div class="vp-bar__left">
+        @for (s of ['ALL','CRITICAL','HIGH','MEDIUM','LOW','INFO']; track s) {
+          <button class="spill" [class.spill--on]="activeSev()===s"
+                  [class.spill--c]="s==='CRITICAL'" [class.spill--h]="s==='HIGH'"
+                  [class.spill--m]="s==='MEDIUM'"   [class.spill--l]="s==='LOW'"
+                  (click)="activeSev.set(s)">
+            {{ s }}
+            @if (s!=='ALL') { <span class="scnt">{{ countSev(s) }}</span> }
+          </button>
+        }
+      </div>
+      <div class="vp-bar__right">
+        @for (m of ['ALL','AST','Regex','Taint']; track m) {
+          <button class="mpill" [class.mpill--on]="activeMethod()===m" (click)="activeMethod.set(m)">{{ m }}</button>
+        }
+      </div>
+    </div>
+  
+    <div class="vp-tbl-wrap">
+      <table class="vp-tbl">
+        <thead>
+          <tr>
+            <th style="width:90px">Severity</th>
+            <th>Titolo / Regola</th>
+            <th style="width:170px">File</th>
+            <th style="width:50px">Line</th>
+            <th style="width:85px">Metodo</th>
+            <th style="width:60px">CWE</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (f of filtered(); track f.id) {
+            <tr class="vr" [class.vr--sel]="selected()?.id===f.id" (click)="toggle(f)">
+              <td><span class="pill {{ sevClass(f.severity) }}">{{ f.severity }}</span></td>
+              <td>
+                <div class="vr-title">{{ f.title }}</div>
+                <div class="mono muted" style="font-size:10px">{{ f.ruleId }}</div>
+              </td>
+              <td class="mono" style="font-size:10px;color:var(--g4)">
+                {{ dir(f.file) }}<strong class="accent-text">{{ basename(f.file) }}</strong>
+              </td>
+              <td class="mono accent-text">{{ f.line }}</td>
+              <td><span class="mbadge">{{ f.method }}</span></td>
+              <td class="mono muted" style="font-size:10px">{{ f.cweId ?? '—' }}</td>
+            </tr>
+            @if (selected()?.id===f.id) {
+              <tr class="vr-detail">
+                <td colspan="6">
+                  <div class="detail-box">
+                    <p style="font-size:12px;color:var(--g5);line-height:1.6">{{ f.description }}</p>
+                    @if (f.codeSnippet) {
+                      <pre class="code-snip">{{ f.codeSnippet }}</pre>
+                    }
+                    @if (f.taintPath) {
+                      <div class="taint-flow">
+                        <span class="mono muted">Taint: </span>
+                        <span class="mono" style="color:var(--low3)">{{ f.taintPath.source.label }}</span>
+                        <span class="mono muted"> ──► </span>
+                        <span class="mono" style="color:var(--crit3)">{{ f.taintPath.sink.label }}</span>
+                      </div>
+                    }
+                    <div class="detail-actions">
+                      <button class="btn btn--sm">⊟ Ignora</button>
+                      <button class="btn btn--sm">✔ Falso positivo</button>
+                      <button class="btn btn--primary btn--sm" (click)="scan.setPage('callgraph')">⬡ Call Graph</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>

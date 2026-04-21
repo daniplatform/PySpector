@@ -1,0 +1,52 @@
+.sidebar {
+    width: var(--sidebar-w); min-width: var(--sidebar-w);
+    height: 100vh; background: var(--bg1); border-right: 1px solid var(--g1);
+    display: flex; flex-direction: column; overflow: hidden;
+  
+    &__logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 18px 16px 14px; border-bottom: 1px solid var(--g1); flex-shrink: 0;
+    }
+    &__scan-btn { margin: 12px 12px 4px; justify-content: center; flex-shrink: 0; }
+    &__nav { flex: 1; padding: 8px 0; overflow-y: auto; }
+    &__footer { padding: 12px 14px; border-top: 1px solid var(--g1); flex-shrink: 0; }
+  }
+  
+  .logo-shield {
+    width: 34px; height: 34px; background: var(--grad);
+    border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-size: 17px; flex-shrink: 0;
+  }
+  .logo-name { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--white); }
+  .logo-ver  { font-family: var(--font-mono); font-size: 10px; color: var(--g3); margin-top: 1px; }
+  
+  .nav-grp-label {
+    padding: 8px 14px 3px; font-size: 10px; color: var(--g2);
+    letter-spacing: 2.5px; text-transform: uppercase; font-weight: 600;
+  }
+  
+  .nav-item {
+    display: flex; align-items: center; gap: 9px; padding: 8px 14px;
+    cursor: pointer; color: var(--g4); font-size: 13px; font-weight: 500;
+    border-left: 2px solid transparent; transition: all .15s; user-select: none;
+    &:hover { color: var(--white); background: var(--bg2); }
+    &--active {
+      color: var(--white); border-left-color: var(--high3);
+      background: linear-gradient(90deg, rgba(249,115,22,.09), transparent);
+    }
+    &__icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+    &__label { flex: 1; }
+  }
+  
+  .nav-badge {
+    font-size: 10px; font-family: var(--font-mono); font-weight: 600;
+    padding: 1px 7px; border-radius: 10px;
+    &--critical { background: var(--critb); color: var(--crit3); border: 1px solid rgba(239,68,68,.3); }
+    &--warning  { background: var(--highb); color: var(--high3); border: 1px solid rgba(249,115,22,.3); }
+    &--info     { background: var(--bg4);   color: var(--g4);    border: 1px solid var(--g1); }
+  }
+  
+  .scan-info { display: flex; align-items: center; justify-content: space-between;
+               font-size: 11px; color: var(--g3); font-family: var(--font-mono); }
+  .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+         background: var(--low3); margin-right: 5px; }

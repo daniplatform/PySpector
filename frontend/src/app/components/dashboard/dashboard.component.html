@@ -1,0 +1,137 @@
+<div class="dashboard">
+
+    <!-- KPI -->
+    <div class="kpi-grid">
+      <div class="kpi kpi--critical" (click)="scan.setPage('vulns')">
+        <div class="kpi__lbl">Critical</div>
+        <div class="kpi__val">{{ summary.critical }}</div>
+        <div class="kpi__sub">+2 da ultima run</div>
+      </div>
+      <div class="kpi kpi--high" (click)="scan.setPage('vulns')">
+        <div class="kpi__lbl">High</div>
+        <div class="kpi__val">{{ summary.high }}</div>
+        <div class="kpi__sub">5 nuove</div>
+      </div>
+      <div class="kpi kpi--medium">
+        <div class="kpi__lbl">Medium</div>
+        <div class="kpi__val">{{ summary.medium }}</div>
+        <div class="kpi__sub">12 risolte</div>
+      </div>
+      <div class="kpi kpi--low">
+        <div class="kpi__lbl">Low / Info</div>
+        <div class="kpi__val">{{ summary.low + summary.info }}</div>
+        <div class="kpi__sub">stabile</div>
+      </div>
+      <div class="kpi kpi--stat">
+        <div class="kpi__lbl">File Scansionati</div>
+        <div class="kpi__val">{{ scan.currentScan().filesScanned }}</div>
+        <div class="kpi__sub" style="color:var(--info2)">{{ scan.currentScan().throughputLps.toLocaleString() }} l/s</div>
+      </div>
+      <div class="kpi kpi--stat">
+        <div class="kpi__lbl">Scan Time</div>
+        <div class="kpi__val mono">{{ scan.currentScan().scanDurationMs }}ms</div>
+        <div class="kpi__sub">Rust parallel core</div>
+      </div>
+    </div>
+  
+    <!-- Row 1: Barchart + Donut -->
+    <div class="grid-2">
+      <div class="ps-card">
+        <div class="ps-card__head">
+          <span>⚠ <span class="accent">Top Categorie</span></span>
+          <span class="muted mono" style="font-size:10px">OWASP Top 10</span>
+        </div>
+        <div class="ps-card__body bar-chart">
+          @for (c of categories; track c.label) {
+            <div class="bar-row">
+              <span class="bar-lbl mono muted">{{ c.label }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="barW(c.count)" [style.background]="barColor(c.sev)"></div>
+              </div>
+              <span class="bar-cnt mono">{{ c.count }}</span>
+            </div>
+          }
+        </div>
+      </div>
+  
+      <div class="ps-card">
+        <div class="ps-card__head">
+          <span>◎ <span class="accent">Distribuzione</span></span>
+          <span class="muted mono" style="font-size:10px">{{ summary.total }} totali</span>
+        </div>
+        <div class="donut-wrap ps-card__body">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="42" fill="none" stroke="var(--bg4)" stroke-width="14"/>
+            @for (s of segments; track s.label) {
+              <circle cx="55" cy="55" r="42" fill="none"
+                [attr.stroke]="s.color" stroke-width="14"
+                [attr.stroke-dasharray]="s.arc + ' ' + s.gap"
+                [attr.stroke-dashoffset]="-s.offset"
+                transform="rotate(-90 55 55)"/>
+            }
+            <text x="55" y="50" text-anchor="middle" fill="var(--white)"
+                  font-family="JetBrains Mono,monospace" font-size="16" font-weight="700">
+              {{ summary.total }}
+            </text>
+            <text x="55" y="65" text-anchor="middle" fill="var(--g3)"
+                  font-family="Space Grotesk,sans-serif" font-size="9">totali</text>
+          </svg>
+          <div class="donut-legend">
+            @for (s of segments; track s.label) {
+              <div class="leg-row">
+                <span class="leg-dot" [style.background]="s.color"></span>
+                <span class="muted" style="flex:1;font-size:11px">{{ s.label }}</span>
+                <span class="mono" style="font-weight:700">{{ s.count }}</span>
+                <span class="mono muted" style="font-size:10px;min-width:36px;text-align:right">
+                  {{ (s.count / summary.total * 100).toFixed(1) }}%
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Row 2: Recent findings + Top files -->
+    <div class="grid-2">
+      <div class="ps-card">
+        <div class="ps-card__head">
+          <span>⚡ <span class="accent">Findings Recenti</span></span>
+          <button class="btn btn--sm" (click)="scan.setPage('vulns')">Vedi tutte →</button>
+        </div>
+        @for (f of recent; track f.id) {
+          <div class="finding-item">
+            <span class="pill {{ sevClass(f.severity) }}">{{ f.severity }}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:600;color:var(--white)">{{ f.title }}</div>
+              <div class="mono muted" style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                {{ dir(f.file) }}<strong class="accent-text">{{ basename(f.file) }}</strong>
+                · line <span class="accent-text">{{ f.line }}</span> · {{ f.method }}
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+  
+      <div class="ps-card">
+        <div class="ps-card__head">
+          <span>◫ <span class="accent">File più Vulnerabili</span></span>
+        </div>
+        <table class="file-tbl">
+          <thead><tr><th>File</th><th>Issues</th><th>Worst</th></tr></thead>
+          <tbody>
+            @for (r of topFiles; track r.file) {
+              <tr>
+                <td class="mono" style="font-size:11px;color:var(--g4)">
+                  {{ dir(r.file) }}<strong class="accent-text">{{ basename(r.file) }}</strong>
+                </td>
+                <td class="mono" style="font-weight:700;color:var(--white)">{{ r.count }}</td>
+                <td><span class="pill {{ sevClass(r.worst) }}">{{ r.worst }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+  </div>

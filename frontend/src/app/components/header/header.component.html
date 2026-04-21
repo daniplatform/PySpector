@@ -1,0 +1,24 @@
+<header class="ps-header">
+    <div class="ps-header__left">
+      <div class="page-title">
+        <span class="page-title__prefix">{{ title[0] }}</span>
+        @if (title[1]) { <span class="page-title__accent">{{ title[1] }}</span> }
+      </div>
+      <span class="scan-meta mono muted">{{ meta }}</span>
+    </div>
+  
+    <div class="ps-header__right">
+      <button class="btn btn--sm" (click)="scan.setPage('triage')">⊞ Triage</button>
+      <button class="btn btn--sm">↓ Export</button>
+      <button class="btn btn--primary btn--sm" (click)="scan.setPage('overview')">▶ Re-scan</button>
+  
+      <!-- Avatar utente -->
+      <div class="user-chip">
+        <div class="user-chip__avatar">{{ user.avatarInitials }}</div>
+        <div class="user-chip__info">
+          <span class="user-chip__name">{{ user.name }}</span>
+          <span class="user-chip__role mono muted">{{ user.role }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
